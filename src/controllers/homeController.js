@@ -125,10 +125,19 @@ exports.toggleHomeContentStatus = async (req, res) => {
 // Get home page data (Arabic)
 exports.getHomeData = async (req, res) => {
     try {
+        console.log('Fetching home data...');
+        
+        // Get home content
+        const homeContent = await Home.findOne();
+        console.log('Home content fetched:', homeContent ? 'Found' : 'Not found');
+
+        // Get chairman message
         const chairMessage = await ChairmanMessage.findOne({
             attributes: ['ar_name', 'ar_small_title', 'ar_title', 'ar_text', 'main_image']
         });
+        console.log('Chairman message fetched:', chairMessage ? 'Found' : 'Not found');
 
+        // Get about data
         const aboutData = await AboutUs.findOne({
             attributes: [
                 'ar_stand_for_title', 
@@ -140,7 +149,9 @@ exports.getHomeData = async (req, res) => {
                 'ar_main_text'
             ]
         });
+        console.log('About data fetched:', aboutData ? 'Found' : 'Not found');
 
+        // Get services
         const services = await Service.findAll({
             attributes: [
                 'ar_service_title', 
@@ -156,7 +167,9 @@ exports.getHomeData = async (req, res) => {
             },
             order: [['order_view', 'ASC']]
         });
+        console.log('Services fetched:', services.length);
 
+        // Get projects
         const projects = await Service.findAll({
             attributes: [
                 'ar_service_title', 
@@ -174,11 +187,15 @@ exports.getHomeData = async (req, res) => {
             },
             order: [['createdAt', 'DESC']]
         });
+        console.log('Projects fetched:', projects.length);
 
+        // Get why us
         const whyUs = await WhyUs.findAll({
             attributes: ['why_us_number', 'ar_why_us_title', 'ar_why_us_text']
         });
+        console.log('Why us fetched:', whyUs.length);
 
+        // Get clients
         const clients = await Partner.findAll({
             attributes: [
                 'ar_partner_title', 
@@ -194,44 +211,79 @@ exports.getHomeData = async (req, res) => {
             },
             order: [['new_counter', 'ASC']]
         });
+        console.log('Clients fetched:', clients.length);
 
+        // Get partners
         const partners = await Partner.findAll({
             attributes: [
                 'ar_partner_title', 
                 'main_image', 
                 'url_link', 
                 'partner_type', 
-                'active_status'
+                'active_status', 
+                'new_counter'
             ],
             where: {
                 partner_type: 'partner',
                 active_status: true
             },
-            order: [['createdAt', 'DESC']]
+            order: [['new_counter', 'ASC']]
         });
+        console.log('Partners fetched:', partners.length);
 
-        const arrigationSystems = await ArregationSystem.findAll({
-            attributes: ['ar_title', 'ar_text', 'active_status'],
+        // Get features
+        const features = await Features.findAll({
+            attributes: [
+                'ar_feature_title',
+                'ar_feature_text',
+                'main_image',
+                'active_status',
+                'order_view'
+            ],
             where: {
                 active_status: true
-            }
+            },
+            order: [['order_view', 'ASC']]
         });
+        console.log('Features fetched:', features.length);
+
+        // Get contact information
+        const contactInfo = await ContactInformation.findOne({
+            attributes: [
+                'ar_address',
+                'ar_company_name',
+                'phone',
+                'email',
+                'facebook',
+                'twitter',
+                'instagram',
+                'linkedin',
+                'youtube'
+            ]
+        });
+        console.log('Contact info fetched:', contactInfo ? 'Found' : 'Not found');
 
         res.json({
-            chairMessage,
-            aboutData,
-            services,
-            projects,
-            partners,
-            clients,
-            whyUs,
-            arrigationSystems
+            status: 'success',
+            data: {
+                home: homeContent,
+                chairman_message: chairMessage,
+                about: aboutData,
+                services,
+                projects,
+                why_us: whyUs,
+                clients,
+                partners,
+                features,
+                contact_info: contactInfo
+            }
         });
     } catch (error) {
-        console.error(error);
+        console.error('Error in getHomeData:', error);
         res.status(500).json({
             status: 'error',
-            message: 'Error fetching home data'
+            message: 'Error fetching home data',
+            error: process.env.NODE_ENV === 'development' ? error.message : undefined
         });
     }
 };
