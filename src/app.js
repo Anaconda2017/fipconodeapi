@@ -23,7 +23,17 @@ app.use(cors()); // Enable CORS
 app.use(express.json()); // Parse JSON bodies
 app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies
 
-// API Routes
+// Welcome route
+app.get('/', (req, res) => {
+    res.json({ 
+        message: 'Welcome to FIPCO API',
+        version: '1.0.0',
+        status: 'active',
+        timestamp: new Date()
+    });
+});
+
+// API Routes with error handling
 app.use('/api/auth', authRoutes);
 app.use('/api/blogs', blogRoutes);
 app.use('/api/services', serviceRoutes);
@@ -32,20 +42,33 @@ app.use('/api/features', featuresRoutes);
 app.use('/api/contact-information', contactInformationRoutes);
 app.use('/api/contact-forms', contactUsFormRoutes);
 
-// Welcome route
-app.get('/', (req, res) => {
-    res.json({ 
-        message: 'Welcome to FIPCO API',
-        version: '1.0.0',
-        status: 'active'
-    });
+// API health check endpoint
+app.get('/api/health', async (req, res) => {
+    try {
+        await sequelize.authenticate();
+        res.json({ 
+            status: 'healthy',
+            timestamp: new Date(),
+            environment: process.env.NODE_ENV,
+            database: 'connected'
+        });
+    } catch (error) {
+        res.status(500).json({ 
+            status: 'unhealthy',
+            timestamp: new Date(),
+            environment: process.env.NODE_ENV,
+            database: 'disconnected',
+            error: error.message
+        });
+    }
 });
 
 // 404 handler
 app.use((req, res) => {
     res.status(404).json({
         status: 'error',
-        message: 'Route not found'
+        message: `Route ${req.originalUrl} not found`,
+        timestamp: new Date()
     });
 });
 
@@ -55,6 +78,8 @@ app.use((err, req, res, next) => {
     res.status(err.status || 500).json({
         status: 'error',
         message: err.message || 'Something went wrong!',
+        timestamp: new Date(),
+        path: req.originalUrl,
         error: process.env.NODE_ENV === 'development' ? err.stack : undefined
     });
 });
@@ -67,13 +92,14 @@ const startServer = async () => {
         await sequelize.authenticate();
         console.log('Database connection has been established successfully.');
         
-        // Sync database models
-        await sequelize.sync({ alter: process.env.NODE_ENV === 'development' });
+        // Sync database models with { force: false } to prevent data loss
+        await sequelize.sync({ force: false });
         console.log('Database models synchronized successfully.');
         
         app.listen(PORT, () => {
             console.log(`Server is running on port ${PORT}`);
             console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+            console.log(`Database: ${process.env.DB_DATABASE} at ${process.env.DB_HOST}`);
         });
     } catch (error) {
         console.error('Unable to connect to the database:', error);
