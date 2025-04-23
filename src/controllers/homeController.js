@@ -128,140 +128,194 @@ exports.getHomeData = async (req, res) => {
         console.log('Fetching home data...');
         
         // Get home content
-        const homeContent = await Home.findOne();
-        console.log('Home content fetched:', homeContent ? 'Found' : 'Not found');
+        let homeContent;
+        try {
+            homeContent = await Home.findOne();
+            console.log('Home content fetched:', homeContent ? 'Found' : 'Not found');
+        } catch (error) {
+            console.error('Error fetching home content:', error);
+            homeContent = null;
+        }
 
         // Get chairman message
-        const chairMessage = await ChairmanMessage.findOne({
-            attributes: ['ar_name', 'ar_small_title', 'ar_title', 'ar_text', 'main_image']
-        });
-        console.log('Chairman message fetched:', chairMessage ? 'Found' : 'Not found');
+        let chairMessage;
+        try {
+            chairMessage = await ChairmanMessage.findOne({
+                attributes: ['ar_name', 'ar_small_title', 'ar_title', 'ar_text', 'main_image']
+            });
+            console.log('Chairman message fetched:', chairMessage ? 'Found' : 'Not found');
+        } catch (error) {
+            console.error('Error fetching chairman message:', error);
+            chairMessage = null;
+        }
 
         // Get about data
-        const aboutData = await AboutUs.findOne({
-            attributes: [
-                'ar_stand_for_title', 
-                'ar_stand_for_text', 
-                'ar_mission_title', 
-                'ar_mission_text', 
-                'ar_vision_title', 
-                'ar_vision_text', 
-                'ar_main_text'
-            ]
-        });
-        console.log('About data fetched:', aboutData ? 'Found' : 'Not found');
+        let aboutData;
+        try {
+            aboutData = await AboutUs.findOne({
+                attributes: [
+                    'ar_stand_for_title', 
+                    'ar_stand_for_text', 
+                    'ar_mission_title', 
+                    'ar_mission_text', 
+                    'ar_vision_title', 
+                    'ar_vision_text', 
+                    'ar_main_text'
+                ]
+            });
+            console.log('About data fetched:', aboutData ? 'Found' : 'Not found');
+        } catch (error) {
+            console.error('Error fetching about data:', error);
+            aboutData = null;
+        }
 
         // Get services
-        const services = await Service.findAll({
-            attributes: [
-                'ar_service_title', 
-                'ar_service_text', 
-                'service_type', 
-                'active_status', 
-                'order_view', 
-                'main_image'
-            ],
-            where: {
-                service_type: 'service',
-                active_status: true
-            },
-            order: [['order_view', 'ASC']]
-        });
-        console.log('Services fetched:', services.length);
+        let services = [];
+        try {
+            services = await Service.findAll({
+                attributes: [
+                    'ar_service_title', 
+                    'ar_service_text', 
+                    'service_type', 
+                    'active_status', 
+                    'order_view', 
+                    'main_image'
+                ],
+                where: {
+                    service_type: 'service',
+                    active_status: true
+                },
+                order: [['order_view', 'ASC']]
+            });
+            console.log('Services fetched:', services.length);
+        } catch (error) {
+            console.error('Error fetching services:', error);
+        }
 
         // Get projects
-        const projects = await Service.findAll({
-            attributes: [
-                'ar_service_title', 
-                'ar_service_text', 
-                'service_type', 
-                'active_status', 
-                'order_view', 
-                'home_status', 
-                'main_image'
-            ],
-            where: {
-                service_type: 'project',
-                home_status: true,
-                active_status: true
-            },
-            order: [['createdAt', 'DESC']]
-        });
-        console.log('Projects fetched:', projects.length);
+        let projects = [];
+        try {
+            projects = await Service.findAll({
+                attributes: [
+                    'ar_service_title', 
+                    'ar_service_text', 
+                    'service_type', 
+                    'active_status', 
+                    'order_view', 
+                    'home_status', 
+                    'main_image'
+                ],
+                where: {
+                    service_type: 'project',
+                    home_status: true,
+                    active_status: true
+                },
+                order: [['createdAt', 'DESC']]
+            });
+            console.log('Projects fetched:', projects.length);
+        } catch (error) {
+            console.error('Error fetching projects:', error);
+        }
 
         // Get why us
-        const whyUs = await WhyUs.findAll({
-            attributes: ['why_us_number', 'ar_why_us_title', 'ar_why_us_text']
-        });
-        console.log('Why us fetched:', whyUs.length);
+        let whyUs = [];
+        try {
+            whyUs = await WhyUs.findAll({
+                attributes: ['why_us_number', 'ar_why_us_title', 'ar_why_us_text']
+            });
+            console.log('Why us fetched:', whyUs.length);
+        } catch (error) {
+            console.error('Error fetching why us:', error);
+        }
 
         // Get clients
-        const clients = await Partner.findAll({
-            attributes: [
-                'ar_partner_title', 
-                'main_image', 
-                'url_link', 
-                'partner_type', 
-                'active_status', 
-                'new_counter'
-            ],
-            where: {
-                partner_type: 'client',
-                active_status: true
-            },
-            order: [['new_counter', 'ASC']]
-        });
-        console.log('Clients fetched:', clients.length);
+        let clients = [];
+        try {
+            clients = await Partner.findAll({
+                attributes: [
+                    'ar_partner_title', 
+                    'main_image', 
+                    'url_link', 
+                    'partner_type', 
+                    'active_status', 
+                    'new_counter'
+                ],
+                where: {
+                    partner_type: 'client',
+                    active_status: true
+                },
+                order: [['new_counter', 'ASC']]
+            });
+            console.log('Clients fetched:', clients.length);
+        } catch (error) {
+            console.error('Error fetching clients:', error);
+        }
 
         // Get partners
-        const partners = await Partner.findAll({
-            attributes: [
-                'ar_partner_title', 
-                'main_image', 
-                'url_link', 
-                'partner_type', 
-                'active_status', 
-                'new_counter'
-            ],
-            where: {
-                partner_type: 'partner',
-                active_status: true
-            },
-            order: [['new_counter', 'ASC']]
-        });
-        console.log('Partners fetched:', partners.length);
+        let partners = [];
+        try {
+            partners = await Partner.findAll({
+                attributes: [
+                    'ar_partner_title', 
+                    'main_image', 
+                    'url_link', 
+                    'partner_type', 
+                    'active_status', 
+                    'new_counter'
+                ],
+                where: {
+                    partner_type: 'partner',
+                    active_status: true
+                },
+                order: [['new_counter', 'ASC']]
+            });
+            console.log('Partners fetched:', partners.length);
+        } catch (error) {
+            console.error('Error fetching partners:', error);
+        }
 
         // Get features
-        const features = await Features.findAll({
-            attributes: [
-                'ar_feature_title',
-                'ar_feature_text',
-                'main_image',
-                'active_status',
-                'order_view'
-            ],
-            where: {
-                active_status: true
-            },
-            order: [['order_view', 'ASC']]
-        });
-        console.log('Features fetched:', features.length);
+        let features = [];
+        try {
+            features = await Features.findAll({
+                attributes: [
+                    'ar_feature_title',
+                    'ar_feature_text',
+                    'main_image',
+                    'active_status',
+                    'order_view'
+                ],
+                where: {
+                    active_status: true
+                },
+                order: [['order_view', 'ASC']]
+            });
+            console.log('Features fetched:', features.length);
+        } catch (error) {
+            console.error('Error fetching features:', error);
+        }
 
         // Get contact information
-        const contactInfo = await ContactInformation.findOne({
-            attributes: [
-                'ar_address',
-                'ar_company_name',
-                'phone',
-                'email',
-                'facebook',
-                'twitter',
-                'instagram',
-                'linkedin',
-                'youtube'
-            ]
-        });
-        console.log('Contact info fetched:', contactInfo ? 'Found' : 'Not found');
+        let contactInfo;
+        try {
+            contactInfo = await ContactInformation.findOne({
+                attributes: [
+                    'ar_address',
+                    'ar_company_name',
+                    'phone',
+                    'email',
+                    'facebook',
+                    'twitter',
+                    'instagram',
+                    'linkedin',
+                    'youtube'
+                ]
+            });
+            console.log('Contact info fetched:', contactInfo ? 'Found' : 'Not found');
+        } catch (error) {
+            console.error('Error fetching contact info:', error);
+            contactInfo = null;
+        }
 
         res.json({
             status: 'success',
