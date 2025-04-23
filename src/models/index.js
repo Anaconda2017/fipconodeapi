@@ -8,6 +8,7 @@ const ContactUsForm = require('./ContactUsForm');
 const Features = require('./Features');
 const WhyUs = require('./WhyUs');
 const ChairmanMessage = require('./ChairmanMessage');
+const Home = require('./Home');
 
 module.exports = {
     User,
@@ -19,5 +20,6 @@ module.exports = {
     ContactUsForm,
     Features,
     WhyUs,
-    ChairmanMessage
+    ChairmanMessage,
+    Home
 }; 
